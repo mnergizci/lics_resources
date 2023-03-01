@@ -1,0 +1,156 @@
+#### Instructions for doing gapfills on LiCS networks as of 01/03/23 ####
+
+1) Before you can process on JASMIN, you'll need an account and permissions. A guide for
+acquiring these can be found at:
+https://gitlab.com/comet_licsar/licsar_documentation/-/wikis/home
+
+2) You will also need to be a member of:
+comet_lics (group workspace)
+nceo_geohazards (group workspace)
+nceo_lics (group workspace)
+hpxfer (additional service)
+... on JASMIN
+
+3) Familiarise yourself with the slurm processing system:
+https://help.jasmin.ac.uk/category/4889-slurm
+
+4) Set up JASMIN fingerprints etc. Would recommend doing this on holly or other server rather than locally.
+Log into JASMIN via:
+a) exec ssh-agent $SHELL
+b) ssh-add ~/.ssh/id_rsa_jasmin
+c) ssh -X -A eejap002@login1.jasmin.ac.uk
+
+5) Log into a sci server. Avoid 3 and 6, e.g.:
+ssh -X -A eejap002@sci.jasmin.ac.uk
+
+6) Get LiCS command up and running via:
+a) module load licsar_framebatch_testing/testing
+b) source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
+... you will now have access to licsar_framebatch codes (and many other codes created by Milan and Yasser to do all things LiCS).
+... see https://comet-licsar.github.io/index.html# and https://gitlab.com/comet_licsar for more info.
+
+7) You will have a number of variables set e.g.:
+$LiCSAR_temp <- your temp processing directory
+$LiCSAR_procdir <- path for the main working directory of the automated system
+$LiCSAR_public <- path to the public directories you can see on the LiCS portal
+... $LiCSAR_temp may not exist so maybe create that.
+
+8) Go to /work/scratch-pw3/licsar/ if you are running licsar things and make a directory for yourself.
+You will do processing here and then save outputs elsewhere. All files here are deleted after 28 days of their creation.
+Be careful or 'touch' them regularly.
+
+9) For framebatch processing, make a directory 'batchdir' for processing in.
+mkdir batchdir
+
+10) Set the BATCH_CACHE_DIR variable in this new directory:
+export BATCH_CACHE_DIR=`pwd`
+
+11) Set the variable $frame to your frame of interest e.g.
+frame=035D_05397_131013
+
+12) Check the status of this frame with:
+getFrameStatus.py $frame 1
+
+Check status of all Iran frames by running
+./check_active.sh
+... if either command returns a username, the frame is active and any processing jobs will fail. Either wait for this user to finish
+or ask them if they are finished. Often yma (Yasser) is active as he is running the monthly update.
+If your username is active on a frame, you can set it to be inactive using:
+setFrameInactive.py $frame
+
+13) framebatch_update_frame.sh can run three main types of job:
+Upfill - processes ifgs from the last three months.
+Backfill - processes ifgs backwards from the old ifg.
+Gapfill - processes ifgs between two dates.
+
+Upfill is ran for most frames monthly by the autoprocessing system.
+Mostly for Iran we run gapfills where monthly update for whatever reason didn't run over that period of time.
+
+14) Make directory in your batchdir directory to collect the batch processing error and out logs:
+mkdir sbatch_logs
+... you are ready to process :)
+
+15) Example command for gapfill:
+sbatch -A comet -p comet -o sbatch_logs/$frame.gapfill.out -e sbatch_logs/$frame.gapfill.err -t 72:00:00 framebatch_update_frame.sh -k -P $frame gapfill 20141001 20190901
+
+What does this mean?
+sbatch : submits a job to the queue.
+-A and -P : requests jobs go to the comet queue to process.
+-o sbatch_logs/$frame.gapfill.out : writes the output to a text file.
+-e sbatch_logs/$frame.gapfill.err : writes any errors to a text file.
+-t 72:00:00 : requests a max runtime of 72 hours.
+framebatch_update_frame.sh : our command.
+-k : keeps the processing directory after completely (deletes by default).
+-P : uses comet queue for sub-jobs.
+$frame : frame of interest.
+gapfill 20141001 20190901 : runs gapfill between these two dates.
+
+...would advise being generous with your gap. Extend dates at least 1 month either side of gap to ensure gap is filled 'strongly'.
+
+Run this command in your BATCH_CACHE_DIR (here batchdir).
+This command will create a frame directory to collect the outputs of gapfilling.
+Remember .err and .out files are collected in sbatch_logs outside of this frame directory.
+
+16) Would recommend setting up a shortcut in your ~.bashrc file to monitor jobs e.g.
+
+#-aliases:
+alias sq='squeue --user=eejap002 --states=all -o "%.18i %.9P %.50j %.8T %.10M %.5m %.9l %.6D %R"'
+
+Typing sq will simply show status of any jobs you have run :)
+
+17) framebatch_update_frame.sh will first run an NLA request. Monitor this with:
+nla_check_status.sh
+... which will tell you if your requests are:
+No queued yet
+Active
+On Disk
+
+... The gapfill job should run automatically when the nla request is "On Disk".
+... If not, NLA request may take days to complete (hence 72hr limit for the sbatch job above!!)
+
+18) Your job might finish (yay) which means you can check your frame directory and .err and .out jobs to see how it went.
+If new ifgs are successfully created, they will exist in GEOC/. This will include softlinks to existing ifgs on the portal.
+Also, there should be one SLC in the SLC/ dir: the master SLC. If more than one SLC is here then you need to run some more
+coregistration jobs.
+
+19) To run more coregistration jobs, run ./postproc_coreg.sh in the frame directory.
+Also try stepping through the *nowait* commands in order from where you think the framebatch jobs have not worked:
+e.g. if you think not all SLCs have coregistered, run from framebatch_02_coreg.nowait.sh
+
+20) Check any ifgs that have been generated by running the below in the GEOC/ dir
+(running below is same as running ./montage_new_ifgs.sh in GEOC).
+
+mkdir tocheck
+find -type d -name "2*_2*" | awk '{print substr($1,3,17)}' > tocheck/new_ifgs.txt
+cd tocheck/
+for ifg in `cat new_ifgs.txt`; do ln -s `readlink -f ../$ifg/$ifg.geo.unw.png` .; done
+montage_months.sh
+
+This creates softlinks for the newly created unwrapped ifgs, and then montage_months.sh creates montage images for each month.
+You can then either look through these using display on jasmin, or copy them locally and use eog, which can be a bit faster.
+
+21) Delete any bad ifgs from GEOC using e.g.:
+rm -rf 20150911_20151017
+
+22) Store good ifgs to the public portal using:
+sbatch -A comet -p comet -o sbatch_logs/$frame.store.out -e sbatch_logs/$frame.store.err -t 72:00:00 store_to_curdir.sh $frame
+... run this in $BATCH_CACHE_DIR (batchdir)
+
+23) Also update GACOS corrections on the portal using:
+sbatch -A comet -p comet -o sbatch_logs/$frame.gacos.out -e sbatch_logs/$frame.gacos.err -t 72:00:00 framebatch_update_gacos.sh $frame
+... also run in $BATCH_CACHE_DIR (batchdir)
+
+Andrew W ran ./gacos_check.sh to check which epochs needed GACOS. This didn't really work for me, and anyway the LiCS Portal tells you
+what %GACOS any frame has. Worth running framebatch_update_gacos.sh most of the time anyway without checking first.
+
+24) The network.png also needs updating. In the frame directory, run firstly:
+update_bperp_file.sh
+
+and after that:
+
+cd $LiCSAR_public/*/$frame
+plot_network.py `pwd` metadata/network.png metadata/gaps.txt
+
+Andrew W ran ./update_network_plot.sh to do these two steps in one but this script doesn't work for me.
+
+25) You should be done :) but maybe this took a while. Congrats. Troubleshoot with Milan and Yasser (or me...) on any weird errors.
