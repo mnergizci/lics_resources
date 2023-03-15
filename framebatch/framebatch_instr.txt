@@ -1,6 +1,7 @@
 #### Instructions for doing gapfills on LiCS networks as of 01/03/23 ####
 
 #### By Jess Payne eejap@leeds.ac.uk ####
+#### Inspired by Andrew Watson github.com/andwatson ####
 
 1) Before you can process on JASMIN, you'll need an account and permissions. A guide for
 acquiring these can be found at:
