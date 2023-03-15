@@ -1,0 +1,112 @@
+#### Instructions for checking LiCS interferograms on Leeds servers as of 15/03/23 ####
+
+#### By Jess Payne eejap@leeds.ac.uk ####
+#### Inspired by Andrew Watson github.com/andwatson ####
+
+This is a guide to using lics_checker.py, and a number of associated scripts, to
+manually check and remove interferograms (and epochs) from the public LiCS portal.
+
+1) Launch the LiCS Checker on a Leeds server e.g. holly, hal, hex, foe-linux:
+module load licsar_proc
+source /nfs/a1/software/lics_conda/2019/etc/profile.d/conda.sh
+conda activate
+lics_checker.py &
+
+2) You may also need to create "~/.modulerc" to run lics_checker_geterr.py.
+~/.modulerc should contain:
+
+#%Module -*- tcl -*-
+## module rc
+
+module use "/nfs/a1/earmla/software/Modules/
+
+3) Back to the LiCS Checker. The first window shows available LiCS tracks. Clicking one 
+lists frames that have been initiated for that track.
+
+"Exclude checked" button removes frames where an up to date LiCS Check result file already exists.
+This button can be a bit tempremental and can hide frames you want to check again, so generally 
+keep it off.
+
+Select a frame and click "OK" to initiate a download of all the diff and unw pngs from 
+the Portal. This download can take a good five minuts, so you might want to begin this download
+process for a second frame. Start this second download in a separate terminal session so you
+can download the second whilst checking the other.
+
+4) The downloader finishes and brings up a GUI window displaying wrapped and unwrapped data
+for a certain ifg for that frame.
+Select an option for each ifg- most will classify as: "0: no errors". If that is the case, you
+can quickly click through the ifgs with the right arrow key on your keyboard.
+
+Note: PgUp skips 20 ifgs forward, and shift+PgUp skips 100. PgDwn does the opposite.
+Note: if a results file already exists,then the lics_checker will continue from the
+last save location. New ifgs being generated does not reset this file either, so make
+sure the checker has started at ifg no. 0 if you want to recheck the whole timeseries.
+
+5) If you see an ifg that doesn't look right, select the reason for it's weird appearance.
+If the data looks smaller than the frame size, there are probably: 
+"5: missing bursts (gray/blue area)".
+If there are straight horizontal lines across the unwrapped ifg, this might be a 
+"2: unwrapping error (tiles visible)".
+If there is no unwrapped data, select: 
+"6: missing (only) unwrapped data".
+If the data looks really funky with visible bursts and swaths, this is probs: 
+"3: coregistration error ('ghosting').
+...these are the most common errors I come across. Data is more likely to contain coregistration
+errors where ionospheric noise is high e.g. the Makran in 2014-15.
+...the checker will autosave to the results file every 25 ifgs, which will print in the
+terminal.
+...clicking either ifg image will display a zoomed in view which can be useful for spotting
+subtle errors.
+
+6) Once you're done checking a given frame, close the window and select the next one for checking.
+If you don't want to check anymore frames, close the LiCS Checker GUI.
+
+7) The results from the lics_checker are saved to the below in some binary format:
+/nfs/a1/insar/lics_check/$frame.savedResults
+
+Pngs for tagged ifgs are also saved in:
+/nfs/a1/insar/lics_check/${frame}errtmp
+
+8) Convert to a human readable text file using:
+lics_checker_geterr.py $frame > /nfs/a1/insar/lics_check/$frame.check.txt
+...this $frame.check.txt file lists all tagged ifgs and error numbers, plus the total ifgs to
+ remove at the bottom.
+
+Note: the error code numbers are different in this file to the main checker.
+New numbers are given at the top.
+
+9) You will need to copy $frame.check.txt to either your JASMIN home or scratch directory.
+See points 1-6 in lics_resources/framebatch/framebatch_instr.txt at github.com/eejap 
+for more details on how to set-up and access your JASMIN account.
+
+10) Use:
+check2removelist.py $frame.check.txt
+...to convert the latter into a format which can be looped through to delete ifgs and related
+files from the Portal.
+...check2removelist.py removes epochs that have appeared at least three times in the list 
+of ifgs to remove. This specific number can be edited in the script check2removelist.py.
+I recommend editing this number to a much higher number for particularly problematic frames
+where lots of ifgs are bad- otherwise you might introduce gaps into your network.
+
+11) The output file is called $frame.remove.list.
+
+12) Run:
+for ifg in `cat $frame.remove.list`; do remove_from_lics.sh $frame $ifg; done
+...same code as in remove.sh
+
+...to loop through the $frame.remove.list output and remove ifgs and associated files.
+...it is important to do this rather than using rm as otherwise the associated files will
+not be removed.
+
+13) Also update the network.png file on the portal by running:
+update_network_plot.sh
+
+Note: unlike the update network plot method in the framebatch instructions, the update_bperp_file.sh
+script should not be run in your own batchdir/$frame directory, but in $LiCSAR_procdir/*/$frame
+
+14) Well done
+
+
+
+
+
