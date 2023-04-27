@@ -1,0 +1,23 @@
+Workflow to fix erroneous bperp values in LiCS network plots:
+
+***be careful not to overwrite baselines text file without making a copy first***
+
+1. Go to $LiCSAR_public/../$frame/metadata
+
+2. Make copy of baselines txt file to preserve original baseline data
+
+3. Remove erroneous epoch(s) from baselines file
+
+4. Run e.g.:
+plot_network.py $LiCSAR_public/174/174A_05798_131313 network.png gaps.txt
+...to pull baseline values from ASF
+
+5. "baselines" will now contain those downloaded from ASF. It's likely some will be
+"not found on ASF", so take the output of regenerated baselines file for only the
+erroneous (now not erroneous) epoch(s) and add to the copied baselines text file. Delete
+the regenerated baselines and rename the copied baselines with the now correct bperp
+to "baselines".
+
+6. Run plot_network.py `pwd` metadata/network.png metadata/gaps.txt in
+$LiCSAR_public/../$frame to plot a new network plot with the correct bperp! The new network
+will automatically be on the portal.
