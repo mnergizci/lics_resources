@@ -1,4 +1,4 @@
-# lics_resources
+# lics_help
 
 A set of instructions in text files and commands in shell scripts to assist LiCS interferogram and time-series processing.
 
