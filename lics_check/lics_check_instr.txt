@@ -103,6 +103,8 @@ update_network_plot.sh
 
 Note: unlike the update network plot method in the framebatch instructions, the update_bperp_file.sh
 script should not be run in your own batchdir/$frame directory, but in $LiCSAR_procdir/*/$frame
+This is because the batchdir/$frame directory contains the ifgs that you have deleted using LiCS checker.
+If you update baselines here the network plot will contain the deleted ifgs.
 
 14) Well done
 
