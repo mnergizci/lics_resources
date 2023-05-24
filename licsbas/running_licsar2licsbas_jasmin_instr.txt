@@ -28,7 +28,7 @@ licsar2licsbas.sh -G -99.4/-98.75/19.0/19.9 -M 1 -t 0 -g -u -c -m -T -n 10 -P $f
 -t = threshold for coherence (Milan recommends using zero where phase gradients are high or where signal might lie in very incoherent areas, but a personal choice)
 -g = use GACOS for LiCSBAS time-series analysis
 -u = perform reunwrapping (i.e. do not just run time-series analysis)
--c = use cascade for reunwrapping
+-c = use cascade for reunwrapping (see Lazecky et al, 2022 for more info https://ieeexplore.ieee.org/abstract/document/9884337)
 -m = use Goldstein filter for reunwrapping. If this flag is used, a spectral magnitude measure of coherence is used.
 -T = use the testing version of LiCSBAS (currently this uses --nopngs and --nullify, in future, this will also add --singular)
 -n = number of cores/processes (?)
@@ -37,3 +37,5 @@ $frame = your LiCS frame ID
 20141001 20230101 = date range of interferograms to be found.
 
 4. If you run this command in command line on JASMIN, a job will be submitted. Reunwrapping at ml10 for a full frame takes 6-9 hours depending on how JASMIN is behaving.
+
+5. Outputs are similar to those written during normal LiCSBAS processing. Usefully, a netcdf (.nc) file is also output which is a bit easier to code with than the normal hdf5 (.h5) output.
