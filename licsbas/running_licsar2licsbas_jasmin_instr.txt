@@ -1,0 +1,39 @@
+### Running licsar2licsbas.sh on JASMIN
+
+licsar2licsbas is a tool run by Milan Lazecky. More information about this tool is available here: https://comet-licsar.github.io/licsar_proc/index.html#licsar-to-licsbas-jasmin
+
+The tool performs two things:
+a. Interferogram 'reunwrapping'
+b. Time-series analysis using LiCSBAS
+
+Step a (reunwrapping) needs to be turned on using flag -u (see below). Time-sereis analysis b is always done.
+
+You might want to do reunwrapping if you have:
+1. High number of loop errors
+2. Unwrapping errors in some or many interferograms
+3. High phase gradients
+4. Low velocity coverage due to maskin (potentially due to high loop errors)
+
+### Instructions
+1. To complete reunwrapping, use the licsar2licsbas tool on JASMIN. You need a JASMIN login, necessary permissions, and ssh keys to be set-up. See other instructions on how to do this.
+
+2. Navigate yourself to where you want your reunwrapped interferograms to be stored, probably a scratch directory.
+
+3. The current (May 2023) recommended processing parameters for reunwrapping involve using Cascade and Goldstein filter options.
+For example to reunwrap interferograms for an area clipped to region -G at full LiCS resolution (ml1) use:
+licsar2licsbas.sh -G -99.4/-98.75/19.0/19.9 -M 1 -t 0 -g -u -c -m -T -n 10 -P $frame 20141001 20230101
+
+-G = defines area to reunwrap
+-M = multilooking value
+-t = threshold for coherence (Milan recommends using zero where phase gradients are high or where signal might lie in very incoherent areas, but a personal choice)
+-g = use GACOS for LiCSBAS time-series analysis
+-u = perform reunwrapping (i.e. do not just run time-series analysis)
+-c = use cascade for reunwrapping
+-m = use Goldstein filter for reunwrapping. If this flag is used, a spectral magnitude measure of coherence is used.
+-T = use the testing version of LiCSBAS (currently this uses --nopngs and --nullify, in future, this will also add --singular)
+-n = number of cores/processes (?)
+-P = use the COMET queue
+$frame = your LiCS frame ID
+20141001 20230101 = date range of interferograms to be found.
+
+4. If you run this command in command line on JASMIN, a job will be submitted. Reunwrapping at ml10 for a full frame takes 6-9 hours depending on how JASMIN is behaving.
