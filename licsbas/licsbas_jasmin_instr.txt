@@ -64,6 +64,10 @@ Here: 8192 * 4 * 2 = 16536
 
 9) You will mainly want to set multiple LiCSBAS steps to run one after another in a batch process.
 To do this use batch_LiCSBAS.sh from https://github.com/yumorishita/LiCSBAS
+
+I have success running the batch_LiCSBAS.sh script on JASMIN with a command such as:
+sbatch -A comet -p comet -o batch_LiCSBAS.out -e batch_LiCSBAS.err -t 10:00:00 --mem=13000 --ntasks 1 --cpus-per-task 4 ./batch_LiCSBAS.sh
+
 a) Again, run this as a job similar to the one in 8c. You may have to play around with --mem sizes depending 
 on your desired resolution and processing area size.
 
