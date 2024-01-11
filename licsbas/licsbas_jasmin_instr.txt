@@ -35,9 +35,13 @@ c) ssh -X -A eejap002@login1.jasmin.ac.uk
 5) Log into a sci server. Avoid 3 and 6, e.g.:
 ssh -X -A eejap002@sci.jasmin.ac.uk
 
-6) Get LiCS command up and running via:
-a) module load licsar_framebatch_testing/testing
-b) source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
+6) Get LiCS commands up and running:
+a) Add to your ~/.bashrc file the line:
+module use "/gws/smf/j04/nceo_geohazards/software/Modules/"
+a) Run:
+module load licsar_framebatch_testing/testing
+b) Run
+source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
 ... you will now have access to licsar_framebatch codes (and many other codes created by Milan and Yasser to do all things LiCS).
 ... see https://comet-licsar.github.io/index.html# and https://gitlab.com/comet_licsar for more info.
 
