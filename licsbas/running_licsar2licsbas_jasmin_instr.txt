@@ -15,11 +15,42 @@ You might want to do reunwrapping if you have:
 4. Low velocity coverage due to maskin (potentially due to high loop errors)
 
 ### Instructions
-1. To complete reunwrapping, use the licsar2licsbas tool on JASMIN. You need a JASMIN login, necessary permissions, and ssh keys to be set-up. See other instructions on how to do this.
+1) Before you can process on JASMIN, you'll need an account and permissions. A guide for
+acquiring these can be found at:
+https://gitlab.com/comet_licsar/licsar_documentation/-/wikis/home
 
-2. Navigate yourself to where you want your reunwrapped interferograms to be stored, probably a scratch directory.
+2) You will also need to be a member of:
+comet_lics (group workspace)
+nceo_geohazards (group workspace)
+nceo_lics (group workspace)
+hpxfer (additional service)
+... on JASMIN
 
-3. The current (May 2023) recommended processing parameters for reunwrapping involve using Cascade and Goldstein filter options.
+3) Familiarise yourself with the slurm processing system:
+https://help.jasmin.ac.uk/category/4889-slurm
+
+4) Set up JASMIN fingerprints etc. Would recommend doing this on holly or other server rather than locally.
+Log into JASMIN via:
+a) exec ssh-agent $SHELL
+b) ssh-add ~/.ssh/id_rsa_jasmin
+c) ssh -X -A eejap002@login1.jasmin.ac.uk
+
+5) Log into a sci server. Avoid 3 and 6, e.g.:
+ssh -X -A eejap002@sci.jasmin.ac.uk
+
+6) Add to your ~/.bashrc file the line:
+module use "/gws/smf/j04/nceo_geohazards/software/Modules/"
+...then source your bashrc file so that you can access the licsar modules.
+
+7) Get LiCS commands up and running via:
+a) module load licsar_framebatch_testing
+b) source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
+... you will now have access to licsar_framebatch codes (and many other codes created by Milan and Yasser to do all things LiCS).
+... see https://comet-licsar.github.io/index.html# and https://gitlab.com/comet_licsar for more info.
+
+8) Navigate yourself to where you want your reunwrapped interferograms to be stored, probably a scratch directory.
+
+9) The current (May 2023) recommended processing parameters for reunwrapping involve using Cascade and Goldstein filter options.
 For example to reunwrap interferograms for an area clipped to region -G at full LiCS resolution (ml1) use:
 licsar2licsbas.sh -G -99.4/-98.75/19.0/19.9 -M 1 -t 0 -g -u -c -m -T -n 10 -P $frame 20141001 20230101
 
@@ -36,6 +67,6 @@ licsar2licsbas.sh -G -99.4/-98.75/19.0/19.9 -M 1 -t 0 -g -u -c -m -T -n 10 -P $f
 $frame = your LiCS frame ID
 20141001 20230101 = date range of interferograms to be found.
 
-4. If you run this command in command line on JASMIN, a job will be submitted. Reunwrapping at ml10 for a full frame takes 6-9 hours depending on how JASMIN is behaving.
+10) If you run this command in command line on JASMIN, a job will be submitted. Reunwrapping at ml10 for a full frame takes 6-9 hours depending on how JASMIN is behaving.
 
-5. Outputs are similar to those written during normal LiCSBAS processing. Usefully, a netcdf (.nc) file is also output which is a bit easier to code with than the normal hdf5 (.h5) output.
+11) Outputs are similar to those written during normal LiCSBAS processing. Usefully, a netcdf (.nc) file is also output which is a bit easier to code with than the normal hdf5 (.h5) output.
