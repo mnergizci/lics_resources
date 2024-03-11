@@ -90,7 +90,11 @@ where lots of ifgs are bad- otherwise you might introduce gaps into your network
 
 11) The output file is called $frame.remove.list.
 
-12) Run:
+12) Load licsar modules by:
+module load licsar_framebatch_testing
+source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
+
+Then run:
 for ifg in `cat $frame.remove.list`; do remove_from_lics.sh $frame $ifg; done
 ...same code as in remove.sh
 
