@@ -112,6 +112,9 @@ If you update baselines here the network plot will contain the deleted ifgs.
 
 14) Well done
 
+N.b. if you run gapfill after running the lics check process it looks like that ifgs that are identified
+as having unwrapping errors or missing bursts are reprocessed :) so that's neat
+
 
 
 
