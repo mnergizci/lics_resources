@@ -1,1 +1,21 @@
+Sometimes NLA requests do not run, maybe because you have reached your NLA quote. Follow below to deal with it.
 
+1. Maybe you see after running LiCSAR_0_getFiles.py that the request was not created:
+Request was not created... Please check manually for label 050D_04647_121313: 2015-02-18 -> 2019-07-03
+...this can mean you have exceeded your NLA quota.
+
+2. To check this, run:
+nla.py requests
+...this prints your quote size and the total request size you have currently taken up.
+...for me I was using 90%+ of my quota so need to delete requests I have used.
+
+3) Run:
+nla.py
+...to see documentation for this command and enter interactive nla coding environment.
+
+4) Run:
+expire $ID
+...where $ID is the nla request number you have finished with- maybe you have finished gapfilling or have now
+downloaded the SLCs so you don't need to keep them on NLA storage anymore.
+...this expire command makes that nla request expiry date now so that the request is removed from your storage.
+...your quote should be not as full :)
