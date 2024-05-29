@@ -19,3 +19,4 @@ expire $ID
 downloaded the SLCs so you don't need to keep them on NLA storage anymore.
 ...this expire command makes that nla request expiry date now so that the request is removed from your storage.
 ...your quote should be not as full :)
+...n.b. nla requests expire automatically after a few days! make sure to use files you request before this time
