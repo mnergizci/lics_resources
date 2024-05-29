@@ -1,1 +1,103 @@
+#### Instructions for doing gapfills on LiCS networks as of 29/05/24 ####
 
+#### By Jess Payne eejap@leeds.ac.uk ####
+#### Inspired by Andrew Watson github.com/andwatson ####
+
+N.b. this approach is recommended by Muhammet Nergizci (PhD at Leeds) who was recommended this by 
+Jack McGrath (formerly PhD student at Leeds, now at GNS). Use this approach if having problems
+with NLA, ASF auto-download, or co-registration of SLCs to form RSLCs.
+
+Usually using framebatch gapfill approach should be suitable (see /lics_resources/framebatch).
+
+1) Before you can process on JASMIN, you'll need an account and permissions. A guide for
+acquiring these can be found at:
+https://gitlab.com/comet_licsar/licsar_documentation/-/wikis/home
+
+2) You will also need to be a member of:
+comet_lics (group workspace)
+nceo_geohazards (group workspace)
+nceo_lics (group workspace)
+hpxfer (additional service)
+... on JASMIN
+
+2a) You will also need access to the COMET queue!
+Email JASMIN cc'ing in Yasser/Milan to ask for access to the COMET queue (otherwise you have to use short-serial and
+won't be able to download anything from the COMET Portal when using LiCSBAS).
+
+3) Familiarise yourself with the slurm processing system:
+https://help.jasmin.ac.uk/category/4889-slurm
+
+4) Set up JASMIN fingerprints etc. Would recommend doing this on holly or other server rather than locally.
+Log into JASMIN via:
+a) exec ssh-agent $SHELL
+b) ssh-add ~/.ssh/id_rsa_jasmin
+c) ssh -X -A eejap002@login1.jasmin.ac.uk
+
+5) Log into a sci server. Avoid 3 and 6, e.g.:
+ssh -X -A eejap002@sci.jasmin.ac.uk
+
+6) Get LiCS commands up and running:
+a) Add to your ~/.bashrc file the line:
+module use "/gws/smf/j04/nceo_geohazards/software/Modules/"
+a) Run:
+module load licsar_framebatch_testing
+b) Run:
+b) source /gws/smf/j04/nceo_geohazards/software/mambalics/load_mambalics.rc
+... you will now have access to licsar_framebatch codes (and many other codes created by Milan and Yasser to do all things LiCS).
+... see https://comet-licsar.github.io/index.html# and https://gitlab.com/comet_licsar for more info.
+
+7) You will have a number of variables set e.g.:
+$LiCSAR_temp <- your temp processing directory
+$LiCSAR_procdir <- path for the main working directory of the automated system
+$LiCSAR_public <- path to the public directories you can see on the LiCS portal
+... $LiCSAR_temp may not exist so maybe create that.
+
+8) Go to /work/scratch-pw3/licsar/ if you are running licsar things and make a directory for yourself.
+You will do processing here and then save outputs elsewhere. All files here are deleted after 28 days of their creation.
+Be careful or 'touch' them regularly.
+
+9) For framebatch processing, make a directory 'batchdir' for processing in.
+mkdir batchdir
+
+10) Set the BATCH_CACHE_DIR variable in this new directory:
+export BATCH_CACHE_DIR=`pwd`
+
+11) Set the variable $frame to your frame of interest e.g.
+frame=035D_05397_131013
+
+12) Check the status of this frame with:
+getFrameStatus.py $frame 1
+
+13) Open tmux window by running:
+tmux
+...in command line. Exit tmux window by Ctrl+B, D.
+...reattach to tmux window with:
+tmux a -t 0
+...where 0 or another number is the tmux session you want to attach to.
+
+14) Run for your frame LiCSAR_0_getFiles.py to run an NLA request for missing epoch data (in $batchdir):
+LiCSAR_0_getFiles.py -f $frame -s 2017-07-01 -e 2019-03-17 -r -b Y -n
+-f = frame
+-s = start date
+-e = end date
+-r = make NLA request
+-b = batch mode to use with NLA request; W - week, M - month, Y - year
+-n = notify user's default email when request submitted
+
+15) Leave this running in a tmux terminal until it is finished. You can check the status
+of your NLA request with:
+nla_check_status.sh
+
+16) Run licsar_make_frame.sh in $batchdir to step auto through LiCSAR scripts:
+licsar_make_frame.sh $frame 0 1 2019-01-01 2021-01-01
+
+17) Hopefully this step 16 should auto work and everything will produced correctly. If not, try
+running framebatch_postproc_coreg.sh:
+framebatch_postproc_coreg.sh -f $frame 1
+...which forces through RSLCs even if temporal baseline is longer than 180 days.
+
+18) Finally run licsar_make_frame.sh again to push through other LiCSAR steps post co-registration.
+
+19) Pick up from /lics_resources/framebatch/framebatch_instr.txt step 18 :)
+
+n.b. currently testing 15-18.
