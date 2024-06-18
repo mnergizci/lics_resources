@@ -1,1 +1,89 @@
+Instructions to run LiCSBAS on a FoE server at University of Leeds.
 
+Correct as of 18/06/24 (I think)
+
+1. Install LiCSBAS by cloning the github repository then using the yml
+
+2. Enter the cloned repository using:
+cd LiCSBAS
+
+3. Source the relevant modules using:
+source bashrc_LiCSBAS.sh
+
+4. Activate the environment using:
+conda activate LiCSBAS
+...your environment name will depend on what the yml was called.
+
+5. Get yourself back to where you want to process data. This should be
+in the scratch disk:
+cd /scratch/$your_scratch_dir
+
+6. Time to start processing. To begin, set your frame variable to the frame you are interested
+in:
+frame=..
+
+7. To see what any LiCSBAS command does run and to understand flags below run:
+LiCSBAS* -h
+...where the asterix is the rest of the command.
+... -h flag indicates you want to see the documentation for that command.
+...for further guidance on each step consult the LiCSBAS paper Morishita et al 2020, MDPI.
+
+8. Next we download the files you want to process.
+Think carefully about how long a time-series you want and which frames will
+be useful as the dataset is pretty large and will fill up the scratch disk quickly.
+Scratch is a shared resource so if you fill it other people cannot use it.
+To download interferograms and GACOS data from the COMET-LiCS portal for the frame of interest $frame between dates 1st October 2014-31st December 2023 run:
+LiCSBAS01_get_geotiff.py -f $frame -s 20141001 20231231 --getgacos --n_para 5
+IMPORTANT! Ensure to set --n_para to 5 or another similar number otherwise
+LiCSBAS uses all the cores on holly and no-one else can do any work.
+
+##### Run the remaining instructions in the $frame directory #####
+
+9. When that has finished (may take a good few minutes) we want to multi-
+look our data. This means essentially downsampling the interferograms and
+GACOS data by the same factor and ensuring they are on the same grid.
+To downsample all data by 10 run:
+LiCSBAS02_ml_prep.py -i GEOC -o GEOCml10 -n 10 --n_para 5
+
+10. Next we apply GACOS atmospheric correction to the interferogram data:
+LiCSBAS03op_GACOS.py -i GEOCml10 -o GEOCml10GACOS --n_para 5
+
+11. We then mask data based on coherence. You can use this command to mask
+regions based on coordinates:
+LiCSBAS04op_mask_unw.py -i GEOCml10GACOS -o GEOCml10GACOSmask -c 0.1 --n_para 5
+
+12. Next we can clip our dataset to a region of interest. In this example 
+we are running the data at quite coarse resolution so processing will be fast,
+but if you want to run data at high resolution I would recommend running 
+this step to only invert your area of interest:
+LiCSBAS05op_clip_unw.py -i GEOCml10GACOSmask -o GEOCml10GACOSmaskclip -g lon1/lon2/lat1/lat2 --n_para 5
+
+13. Interferograms are now prepared and next we move on to pre-processing 
+the entire interferogram stack together. In this step we remove whole interferograms which have average coherence less than threshold -c (0.05
+here) or have pixel coverage less than 60% (-u, 0.6). Ifgs may not have 
+full coverage due to either missing bursts or due to masking in step 4.
+Run:
+LiCSBAS11_check_unw.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask -c 0.05 -u 0.6
+
+14. Next we run the loop closure step. This step removes ifgs with an RMS
+of loop phase closure greater than -l (default 1.5 rad). See paper for 
+detail. Optionally (and I usually do this) you can choose to nullify pixels. This step removes pixels that have loop closure error exceeding pi
+and tends to increase coverage in the final result. This approach may 
+seem counter intuitive but this nullification ensures that erroneous,
+noisy pixels are removed before inversion meaning fewer errors are propagated.
+Run:
+LiCSBAS12_loop_closure.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask -l 1.5 --multi_prime --n_para 5 --nullify
+
+15. To finally run the time-series inversion, run:
+LiCSBAS13_sb_inv.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask --n_para 5 --nopngs
+
+16. We need to next calculate the standard deviation of the resulting velocities. LiCSBAS uses bootstrapping to do this:
+LiCSBAS14_vel_std.py -t TS_GEOCml10GACOSmask
+
+17. Finally run the masking step. Here LiCSBAS masks pixels in the final 
+velocities based on masking thresholds such as coherence, loop closure,
+and number of unwrapped data per pixel. Run:
+LiCSBAS15_mask_ts.py -c 0.05 -u 1.5 -v 20 -T 0 -g 10 -s 20 -i 250 -l 5 -r 20
+
+18. You can now view the resulting time-series using:
+LiCSBAS_plot_ts.py -i TS_GEOCml10GACOSmask/cum.h5
