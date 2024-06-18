@@ -1,0 +1,26 @@
+LiCSBAS install instructions
+1.	Install mamba miniforge 3
+a.	Head to https://github.com/conda-forge/miniforge?tab=readme-ov-file
+b.	Run the Unix-like platforms installer command (scroll down a bit on this github)
+c.	Ensure to replace $(uname) with the appropriate version for you. I think the exact command you will want to run will be (unless your mac has Apple silicon chip?). This might take a while:
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-x86_64.sh"
+bash Miniforge3-MacOSX-x86_64.sh
+
+2.	Clone LiCSBAS github repository
+a.	Open a terminal on your mac and run:
+git clone https://github.com/yumorishita/LiCSBAS.git
+b.	This above url is found on this page: https://github.com/yumorishita/LiCSBAS if you click the green “<> Code” button in the top right area of the page
+
+3.	Install LiCSBAS environment
+a.	Type the below in your terminal to move to where you cloned the repository
+cd LiCSBAS
+b.	Then run the below commands (first one might take a while)
+mamba env create -f LiCSBAS.yml
+mamba activate licsbas
+
+4.	Load LiCSBAS module
+a.	Run the below command to load the LiCSBAS module 
+source bashrc_LiCSBAS.sh
+
+5.	Check the LiCSBAS install is ok by running
+LiCSBAS_check_install.py
