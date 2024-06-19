@@ -20,12 +20,12 @@ cd /scratch/$your_scratch_dir
 
 6. Time to start processing. To begin, set your frame variable to the frame you are interested
 in:
-frame=..
+frame=049D_05733_131313
 
-7. To see what any LiCSBAS command does run and to understand flags below run:
+7. To see what any LiCSBAS command does and to understand flags below run:
 LiCSBAS* -h
 ...where the asterix is the rest of the command.
-... -h flag indicates you want to see the documentation for that command.
+...-h flag indicates you want to see the documentation for that command.
 ...for further guidance on each step consult the LiCSBAS paper Morishita et al 2020, MDPI.
 
 8. Next we download the files you want to process.
