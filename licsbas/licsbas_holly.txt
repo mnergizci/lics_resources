@@ -1,8 +1,12 @@
-Instructions to run LiCSBAS on a FoE server at University of Leeds.
+### Instructions to run LiCSBAS on a FoE server at University of Leeds ###
 
-Correct as of 18/06/24 (I think)
+Written by Jess Payne. Correct as of 18/06/24 (I think).
 
-1. Install LiCSBAS by cloning the github repository then using the yml
+1. Install LiCSBAS2 by cloning the github repository:
+git clone https://github.com/yumorishita/LiCSBAS2.git
+
+Then install the environment using the .yml file:
+conda env create -f LiCSBAS.yml
 
 2. Enter the cloned repository using:
 cd LiCSBAS
