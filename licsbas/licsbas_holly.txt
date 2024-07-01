@@ -11,12 +11,12 @@ conda env create -f LiCSBAS.yml
 2. Enter the cloned repository using:
 cd LiCSBAS
 
-3. Source the relevant modules using:
-source bashrc_LiCSBAS.sh
-
-4. Activate the environment using:
+3. Activate the environment using:
 conda activate LiCSBAS
 ...your environment name will depend on what the yml was called.
+
+4. Source the relevant modules using:
+source bashrc_LiCSBAS.sh
 
 5. Get yourself back to where you want to process data. This should be
 in the scratch disk:
