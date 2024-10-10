@@ -71,7 +71,7 @@ which have average coherence less than threshold -c (0.05
 here) or have pixel coverage less than 60% (-u, 0.6). Interferograms may not have 
 full coverage due to either missing bursts or due to masking in step 4.
 Run:
-LiCSBAS11_check_unw.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask -c 0.05 -u 0.6
+LiCSBAS11_check_unw.py -d GEOCml10GACOSmaskclip -t TS_GEOCml10GACOSmaskclip -c 0.05 -u 0.6
 
 14. Next we run the loop closure step. This step removes ifgs with an RMS
 of loop phase closure greater than -l (default 1.5 rad). See paper for 
@@ -81,15 +81,15 @@ and tends to increase coverage in the final result. This approach may
 seem counter intuitive but this nullification ensures that erroneous,
 noisy pixels are removed before inversion meaning fewer errors are propagated.
 Run:
-LiCSBAS12_loop_closure.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask -l 1.5 --multi_prime --n_para 5 --nullify
+LiCSBAS12_loop_closure.py -d GEOCml10GACOSmaskclip -t TS_GEOCml10GACOSmaskclip -l 1.5 --multi_prime --n_para 5 --nullify
 
 15. To finally run the time-series inversion, run (takes a long time if small
 multilook factor):
-LiCSBAS13_sb_inv.py -d GEOCml10GACOSmask -t TS_GEOCml10GACOSmask --n_para 5 --nopngs
+LiCSBAS13_sb_inv.py -d GEOCml10GACOSmaskclip -t TS_GEOCml10GACOSmaskclip --n_para 5 --nopngs
 
 16. We need to next calculate the standard deviation of the resulting velocities.
 LiCSBAS uses bootstrapping to do this:
-LiCSBAS14_vel_std.py -t TS_GEOCml10GACOSmask
+LiCSBAS14_vel_std.py -t TS_GEOCml10GACOSmaskclip
 
 17. Finally run the masking step. Here LiCSBAS masks pixels in the final 
 velocities based on masking thresholds such as coherence, loop closure,
@@ -97,4 +97,4 @@ and number of unwrapped data per pixel. Run:
 LiCSBAS15_mask_ts.py -c 0.05 -u 0.5 -v 10 -T 0 -g 5 -s 15 -i 250 -l 15 -r 20
 
 18. You can now view the resulting time-series using:
-LiCSBAS_plot_ts.py -i TS_GEOCml10GACOSmask/cum.h5
+LiCSBAS_plot_ts.py -i TS_GEOCml10GACOSmaskclip/cum.h5
