@@ -40,7 +40,7 @@ Scratch is a shared resource so if you fill it other people cannot use it.
 To download interferograms and GACOS data from the COMET-LiCS portal for the frame of
 interest $frame between dates 1st October 2014-31st December 2023 run:
 
-LiCSBAS01_get_geotiff.py -f $frame -s 20141001 20231231 --getgacos --n_para 5
+LiCSBAS01_get_geotiff.py -f $frame -s 20141001 -e 20231231 --getgacos --n_para 5
 IMPORTANT! Ensure to set --n_para to 5 or another similar number otherwise
 LiCSBAS uses all the cores on holly and no-one else can do any work.
 
