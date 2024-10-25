@@ -147,10 +147,11 @@ You can then either look through these using display on jasmin, or copy them loc
 rm -rf 20150911_20151017
 
 22) Store good ifgs to the public portal using:
-sbatch -A comet -p comet -o sbatch_logs/$frame.store.out -e sbatch_logs/$frame.store.err -t 72:00:00 store_to_curdir.sh $frame
+sbatch -A comet -p comet -o sbatch_logs/$frame.store.out -e sbatch_logs/$frame.store.err -t 72:00:00 store_to_curdir.sh $frame 0 1 1 ##[DELETEAFTER] [OVERWRITE] [DOGACOS]
 ... run this in $BATCH_CACHE_DIR (batchdir)
 
 23) Also update GACOS corrections on the portal using:
+##if you add the 1 as 4. flag in hte store_to_curdir you don't need to it seperately....
 sbatch -A comet -p comet -o sbatch_logs/$frame.gacos.out -e sbatch_logs/$frame.gacos.err -t 72:00:00 framebatch_update_gacos.sh $frame
 ... also run in $BATCH_CACHE_DIR (batchdir)
 
